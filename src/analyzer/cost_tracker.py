@@ -117,3 +117,7 @@ class CostTracker:
         # Default fallback pricing (conservative estimate)
         logger.warning("Unknown model pricing, using default", model=model_name)
         return (5.00, 15.00)
+
+
+# Module-level singleton instance (used by health check and other modules)
+cost_tracker = CostTracker()
