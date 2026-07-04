@@ -9,20 +9,17 @@
 from __future__ import annotations
 
 import asyncio
-import structlog
-from datetime import date, datetime, timedelta, timezone
-from urllib.parse import urlparse
+from datetime import UTC, date, datetime, timedelta
 
 import httpx
+import structlog
 from sqlalchemy import delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.analyzer.cost_tracker import CostTracker
 from src.analyzer.llm_client import LLMClient
 from src.analyzer.scorer import ArticleScorer
 from src.config import settings
 from src.database import async_session_factory
-from src.fetchers.base import BaseFetcher
 from src.fetchers.rate_limiter import RateLimiter
 from src.fetchers.rss_fetcher import RSSFetcher
 from src.models.article import Article
@@ -190,7 +187,7 @@ async def cleanup_old_articles(retention_days: int | None = None) -> dict:
     if retention_days is None:
         retention_days = settings.article_retention_days
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
+    cutoff = datetime.now(UTC) - timedelta(days=retention_days)
     logger.info("Starting cleanup_old_articles task", cutoff=str(cutoff))
 
     async with async_session_factory() as session:

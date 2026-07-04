@@ -1,7 +1,6 @@
 """Tests for URL and text normalization."""
 
-import pytest
-from src.dedup.normalizer import normalize_url, normalize_text
+from src.dedup.normalizer import normalize_text, normalize_url
 
 
 class TestNormalizeURL:

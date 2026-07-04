@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import json
-import structlog
 import re
 import time
-from datetime import datetime, timezone
 
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -254,7 +253,9 @@ class ArticleScorer:
                     return json.loads(match.group())
                 except json.JSONDecodeError:
                     pass
-            raise ValueError(f"Failed to parse LLM response as JSON: {raw[:200]}")
+            raise ValueError(
+                f"Failed to parse LLM response as JSON: {raw[:200]}"
+            ) from None
 
     def _validate_and_fix(self, data: dict) -> dict:
         """Validate score ranges and structure, fixing minor issues."""

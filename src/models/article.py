@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
-    CheckConstraint,
     DateTime,
     ForeignKey,
     Index,
-    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -42,7 +40,7 @@ class Article(Base):
     author: Mapped[str | None] = mapped_column(String(255))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     language: Mapped[str] = mapped_column(String(10), default="en")
 
@@ -56,13 +54,15 @@ class Article(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
 
     # Relationships
     source = relationship("Source", lazy="selectin")
     duplicate_of = relationship("Article", remote_side=[id], lazy="selectin")
-    analysis = relationship("AIAnalysisScore", back_populates="article", uselist=False, lazy="selectin")
+    analysis = relationship(
+        "AIAnalysisScore", back_populates="article", uselist=False, lazy="selectin"
+    )
 
     __table_args__ = (
         UniqueConstraint("url", name="uq_articles_url"),

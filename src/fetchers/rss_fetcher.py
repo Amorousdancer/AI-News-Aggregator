@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import structlog
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import feedparser
 import httpx
+import structlog
 
 from src.dedup.pipeline import ArticleCandidate
 from src.fetchers.base import BaseFetcher
@@ -111,11 +111,19 @@ class RSSFetcher(BaseFetcher):
             client = self.http_client
             if client is None:
                 async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
-                    resp = await client.get(self.source.feed_url, headers=headers, follow_redirects=True)
+                    resp = await client.get(
+                        self.source.feed_url,
+                        headers=headers,
+                        follow_redirects=True,
+                    )
                     resp.raise_for_status()
                     return resp.text
             else:
-                resp = await client.get(self.source.feed_url, headers=headers, follow_redirects=True)
+                resp = await client.get(
+                    self.source.feed_url,
+                    headers=headers,
+                    follow_redirects=True,
+                )
                 resp.raise_for_status()
                 return resp.text
         except httpx.HTTPStatusError as exc:
@@ -141,7 +149,7 @@ class RSSFetcher(BaseFetcher):
         """
         if not self.source.last_fetched_at:
             return None
-        return self.source.last_fetched_at.replace(tzinfo=timezone.utc)
+        return self.source.last_fetched_at.replace(tzinfo=UTC)
 
     @staticmethod
     def _extract_published(entry) -> datetime | None:
@@ -151,7 +159,7 @@ class RSSFetcher(BaseFetcher):
             parsed = getattr(entry, attr, None)
             if parsed:
                 try:
-                    return datetime(*parsed[:6], tzinfo=timezone.utc)
+                    return datetime(*parsed[:6], tzinfo=UTC)
                 except (TypeError, ValueError):
                     continue
         return None

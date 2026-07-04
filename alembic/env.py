@@ -3,13 +3,13 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
 from src.config import settings
 from src.database import Base
-from src.models import Source, Article, AIAnalysisScore, DailyReport  # noqa: F401
+from src.models import AIAnalysisScore, Article, DailyReport, Source  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

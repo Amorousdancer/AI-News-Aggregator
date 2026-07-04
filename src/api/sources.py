@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -180,17 +180,22 @@ async def trigger_fetch_source(
     session: AsyncSession = Depends(get_session),
 ):
     """手动触发抓取指定的新闻源。"""
-    import httpx
     import traceback
-    from src.fetchers.rss_fetcher import RSSFetcher
+
+    import httpx
+
     from src.fetchers.rate_limiter import RateLimiter
+    from src.fetchers.rss_fetcher import RSSFetcher
 
     source = await session.get(Source, source_id)
     if not source:
         raise HTTPException(404, "Source not found")
 
     try:
-        limiter = RateLimiter(max_requests=source.rate_limit_requests, window_seconds=source.rate_limit_window_seconds)
+        limiter = RateLimiter(
+            max_requests=source.rate_limit_requests,
+            window_seconds=source.rate_limit_window_seconds,
+        )
         async with httpx.AsyncClient(timeout=30) as client:
             fetcher = RSSFetcher(source, session, limiter, client)
             added = await fetcher.run()

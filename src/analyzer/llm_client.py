@@ -6,13 +6,13 @@ Fallback chain: Claude Sonnet 4 → Claude Haiku 4 → GPT-4o-mini → error.
 from __future__ import annotations
 
 import asyncio
-import json
-import structlog
 from dataclasses import dataclass
 
-from anthropic import AsyncAnthropic, APIError, APITimeoutError, RateLimitError
+import structlog
+from anthropic import APIError, APITimeoutError, AsyncAnthropic, RateLimitError
 from anthropic.types import Message as AnthropicMessage
-from openai import AsyncOpenAI, APIError as OpenAIAPIError
+from openai import APIError as OpenAIAPIError
+from openai import AsyncOpenAI
 
 from src.analyzer.cost_tracker import CostTracker
 from src.config import settings
@@ -230,7 +230,10 @@ class LLMClient:
                                 start = thinking_text.find("{")
                                 end = thinking_text.rfind("}") + 1
                                 content = thinking_text[start:end]
-                                logger.debug("Extracted JSON from thinking block", content_length=len(content))
+                                logger.debug(
+                                    "Extracted JSON from thinking block",
+                                    content_length=len(content),
+                                )
                                 break
 
                 return LLMResponse(
@@ -243,7 +246,7 @@ class LLMClient:
                     duration_ms=duration_ms,
                 )
 
-            except (APITimeoutError, RateLimitError) as exc:
+            except (APITimeoutError, RateLimitError):
                 if attempt < max_retries - 1:
                     wait = (2 ** attempt) * 2  # 2s, 4s, 8s
                     logger.info("Retrying Anthropic call", attempt=attempt + 1, wait=wait)
@@ -300,7 +303,7 @@ class LLMClient:
                     duration_ms=duration_ms,
                 )
 
-            except OpenAIAPIError as exc:
+            except OpenAIAPIError:
                 if attempt < max_retries - 1:
                     wait = (2 ** attempt) * 2
                     logger.info("Retrying OpenAI call", attempt=attempt + 1, wait=wait)

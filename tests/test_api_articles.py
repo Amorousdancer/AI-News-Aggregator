@@ -1,7 +1,8 @@
 ﻿"""Integration tests for the Articles API endpoints."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def _setup_mock_execute(mock_db_session, return_rows, total_count=0):
@@ -54,7 +55,8 @@ class TestArticlesList:
     @pytest.mark.asyncio
     async def test_list_articles_filter_by_source(self, api_client, mock_db_session):
         _setup_mock_execute(mock_db_session, [], 3)
-        response = await api_client.get("/api/articles?source_id=f47ac10b-58cc-4372-a567-0e02b2c3d479")
+        source_id = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        response = await api_client.get(f"/api/articles?source_id={source_id}")
         assert response.status_code == 200
 
     @pytest.mark.asyncio

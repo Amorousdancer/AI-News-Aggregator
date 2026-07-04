@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import structlog
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -129,7 +129,7 @@ class ReportGenerator:
 
     async def _gather_report_data(self, report_date: date) -> dict:
         """Collect all data needed to generate a report for a given date."""
-        start_dt = datetime(report_date.year, report_date.month, report_date.day, tzinfo=timezone.utc)
+        start_dt = datetime(report_date.year, report_date.month, report_date.day, tzinfo=UTC)
         end_dt = start_dt + timedelta(days=1)
 
         # Get analyzed articles published on this date
@@ -164,7 +164,11 @@ class ReportGenerator:
                 cat = article.analysis.primary_category
                 category_breakdown[cat] = category_breakdown.get(cat, 0) + 1
 
-        top_category = max(category_breakdown, key=category_breakdown.get) if category_breakdown else "N/A"
+        top_category = (
+            max(category_breakdown, key=category_breakdown.get)
+            if category_breakdown
+            else "N/A"
+        )
 
         # Calculate average scores
         if articles:
@@ -187,7 +191,8 @@ class ReportGenerator:
                 a.analysis.depth_score or 0 for a in articles if a.analysis
             ) / max(1, sum(1 for a in articles if a.analysis))
         else:
-            avg_overall = avg_relevance = avg_credibility = avg_freshness = avg_novelty = avg_depth = 0.0
+            avg_overall = avg_relevance = avg_credibility = 0.0
+            avg_freshness = avg_novelty = avg_depth = 0.0
 
         # Build top articles text for the prompt
         top_articles_text = self._format_top_articles(articles[:TOP_ARTICLES_CONTEXT])
@@ -197,7 +202,9 @@ class ReportGenerator:
         for article in articles:
             source_name = article.source.name if article.source else "Unknown"
             source_counts[source_name] = source_counts.get(source_name, 0) + 1
-        source_stats_text = "\n".join(f"- {name}: {count} articles" for name, count in source_counts.items())
+        source_stats_text = "\n".join(
+            f"- {name}: {count} articles" for name, count in source_counts.items()
+        )
 
         return {
             "articles": articles,
@@ -243,9 +250,12 @@ class ReportGenerator:
             score = article.analysis.overall_score if article.analysis else "N/A"
             summary = article.analysis.ai_summary or article.summary or "No summary"
             summary = summary[:300]
+            category = (
+                article.analysis.primary_category if article.analysis else "N/A"
+            )
             lines.append(
                 f"{i}. [{title}]({article.url})\n"
-                f"   Score: {score} | Category: {article.analysis.primary_category if article.analysis else 'N/A'}\n"
+                f"   Score: {score} | Category: {category}\n"
                 f"   Summary: {summary}\n"
             )
         return "\n".join(lines) if lines else "No articles found for this date."
@@ -271,7 +281,10 @@ class ReportGenerator:
 
     async def _create_empty_report(self, report_date: date) -> DailyReport:
         """Create a placeholder report when no articles are available."""
-        empty_md = f"# Daily News Report — {report_date.isoformat()}\n\nNo articles were found for this date.\n"
+        empty_md = (
+            f"# Daily News Report — {report_date.isoformat()}\n\n"
+            "No articles were found for this date.\n"
+        )
         report = DailyReport(
             report_date=report_date,
             title=f"Daily News Report — {report_date.isoformat()}",

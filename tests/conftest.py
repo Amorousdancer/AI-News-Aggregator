@@ -1,11 +1,11 @@
 ﻿"""Shared test fixtures and API testing utilities."""
 
+import uuid
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from unittest.mock import AsyncMock, MagicMock
-import uuid
-from datetime import datetime, timezone
 
 
 @pytest.fixture
@@ -95,6 +95,7 @@ def mock_db_session():
 async def test_app(mock_db_session):
     """Create a FastAPI test app with mocked database dependency (no scheduler)."""
     from fastapi import FastAPI
+
     from src.api.router import api_router
     from src.database import get_session
 

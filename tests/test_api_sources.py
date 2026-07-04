@@ -1,8 +1,9 @@
 ﻿"""Integration tests for the Sources API endpoints."""
 
-import pytest
 import uuid
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def _setup_mock_scalars(mock_db_session, return_rows):

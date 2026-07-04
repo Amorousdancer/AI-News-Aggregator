@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import markdown_it
-from markdown_it.presets import commonmark
 
 
 def markdown_to_html(markdown_text: str) -> str:

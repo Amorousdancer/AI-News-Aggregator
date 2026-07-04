@@ -62,8 +62,8 @@ async def get_report(
     """按日期查看指定的每日报告。"""
     try:
         parsed_date = date.fromisoformat(report_date)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD.")
+    except ValueError as err:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD.") from err
 
     stmt = select(DailyReport).where(DailyReport.report_date == parsed_date)
     result = await session.execute(stmt)
@@ -98,8 +98,8 @@ async def get_report_html(
     """以网页形式查看指定日期的每日报告。"""
     try:
         parsed_date = date.fromisoformat(report_date)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD.")
+    except ValueError as err:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD.") from err
 
     stmt = select(DailyReport).where(DailyReport.report_date == parsed_date)
     result = await session.execute(stmt)

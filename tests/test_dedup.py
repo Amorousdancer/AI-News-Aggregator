@@ -47,7 +47,10 @@ class TestSimHash:
         """Articles with slight wording differences should have low Hamming distance."""
         h1 = compute_simhash(
             "OpenAI announces GPT-5",
-            "OpenAI today announced the release of GPT-5, a new language model with significant improvements.",
+            (
+                "OpenAI today announced the release of GPT-5, "
+                "a new language model with significant improvements."
+            ),
         )
         h2 = compute_simhash(
             "OpenAI launches GPT-5",

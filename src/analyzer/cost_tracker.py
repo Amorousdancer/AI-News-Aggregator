@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import structlog
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -35,7 +36,7 @@ class CostTracker:
     total_cost_usd: float = 0.0
     daily_cost_usd: float = 0.0
     calls: list[dict] = field(default_factory=list)
-    _last_reset_date: str = field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+    _last_reset_date: str = field(default_factory=lambda: datetime.now(UTC).strftime("%Y-%m-%d"))
 
     def record_call(
         self,
@@ -50,7 +51,7 @@ class CostTracker:
         (Anthropic charges 10% of the input price for cache reads).
         """
         # Reset daily counter if date changed
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
         if today != self._last_reset_date:
             self.daily_cost_usd = 0.0
             self._last_reset_date = today
@@ -80,7 +81,7 @@ class CostTracker:
             "output_tokens": output_tokens,
             "cached": is_cached_input,
             "cost_usd": round(call_cost, 6),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         })
 
         logger.debug(

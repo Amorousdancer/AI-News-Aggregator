@@ -24,7 +24,8 @@ ANALYSIS_USER_TEMPLATE = """分析此新闻并直接输出JSON：
 输出格式：
 {{"scores":{{"relevance":0.5,"credibility":0.5,"freshness":0.5,"novelty":0.5,"depth":0.5,"overall":0.5,"rationale":"理由"}},"summary":"摘要","key_points":["要点1","要点2"],"sentiment":"neutral","primary_category":"Business","secondary_categories":[],"entities":{{"people":[],"organizations":[],"locations":[]}},"reading_level":"intermediate"}}
 
-分类：Technology, AI/ML, Business, Science, Politics, Health, Environment, Finance, Sports, Entertainment, World, Security, Other"""
+分类：Technology, AI/ML, Business, Science, Politics, Health, Environment,
+Finance, Sports, Entertainment, World, Security, Other"""
 
 
 # Report generation prompt

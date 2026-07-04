@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import structlog
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+import structlog
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -120,7 +120,7 @@ class BaseFetcher(ABC):
 
     async def _update_source_success(self) -> None:
         """Update source metadata after a successful fetch."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self.session.execute(
             update(Source)
             .where(Source.id == self.source.id)
@@ -133,7 +133,7 @@ class BaseFetcher(ABC):
 
     async def _update_source_error(self, error_message: str) -> None:
         """Update source metadata after a fetch error."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         new_failures = self.source.consecutive_failures + 1
         enabled = new_failures < 5  # Circuit breaker at 5 consecutive failures
 

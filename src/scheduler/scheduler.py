@@ -7,7 +7,7 @@ Jobs survive restarts — state is persisted in the database.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -31,7 +31,7 @@ class SchedulerManager:
 
     def __init__(self):
         self.scheduler = AsyncIOScheduler(
-            timezone=timezone.utc,
+            timezone=UTC,
             job_defaults={
                 "coalesce": True,      # If a job is missed, don't queue multiple runs
                 "max_instances": 1,     # No overlapping runs of the same job
